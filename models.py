@@ -107,7 +107,22 @@ class QAEquivalent(BaseModel):
         super().__init__(**kwargs)
 
     def base_gen_questions(self, data):
-        instruction = f"Generate a list of {self.n_questions} questions, that might have generated the sentence in the context of the preceding original text, as well as their answers. Please do not use specific facts that appear in the follow-up sentence when formulating the question.\nMake the questions and answers diverse. Avoid yes-no questions.\nThe answers should not be a full sentence and as short as possible, e.g. only a name, place, or thing. Use the format \"1. {{question}} -- {{answer}}\""
+        base_instruction = f"Generate a list of {self.n_questions} questions, that might have generated the sentence in the context of the preceding original text, as well as their answers. Please do not use specific facts that appear in the follow-up sentence when formulating the question.\nMake the questions and answers diverse. Avoid yes-no questions.\nThe answers should not be a full sentence and as short as possible, e.g. only a name, place, or thing. Use the format \"1. {{question}} -- {{answer}}\""
+
+        example_instruction = f"""Generate a list of {self.n_questions} questions, that might have generated the sentence in the context of the preceding original text, as well as their answers. Please do not use specific facts that appear in the follow-up sentence when formulating the question.
+            Make the questions and answers diverse. Avoid yes-no questions.
+            The answers should not be a full sentence and as short as possible, e.g. only a name, place, or thing.
+            If the provided answer were \"Freddie Frith was an English motorcycle road racer\", an example of appropriate generated questions might be:\n
+                1. What notable accomplishments did Freddie Frith achieve?
+                2. What was Freddie Frith known for?
+                3. Who was Freddie Frith?
+                
+            An example of a inappropriate question for this answer is: Who were famous motorcycle racers?
+            
+            Use the format \"1. {{question}} -- {{answer}}\"."""
+        
+        
+        instruction = base_instruction # example_instruction
 
         if data['text_so_far'] is None:
             return f"""You see the sentence:

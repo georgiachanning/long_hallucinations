@@ -155,6 +155,15 @@ if __name__ == '__main__':
         "--model", type=str, default='QADebertaEntailment',
         help="Set of prompts to use.")
     parser.add_argument(
+        "--base_model", type=str, default="openai",
+        help="what base model to use. see LLM.py for huggingface options.")
+    parser.add_argument(
+        "--huggingface", type=bool, default=True,
+        help="where we are using huggingface")
+    parser.add_argument(
+        "--device", type=str, default='cuda:0',
+        help="what device?")
+    parser.add_argument(
         "--n_questions", type=str, default='three',
         help="Number of questions to ask per proposition.")
     parser.add_argument(
@@ -186,4 +195,6 @@ if __name__ == '__main__':
             "restore failures indicate you might not be restoring what you "
             "think you are. An exception to this is adding more questions to a run!"))
 
-    main(parser.parse_args())
+    args = parser.parse_args()
+    utils.init_client(args.base_model, args.huggingface, args.device)
+    main(args)

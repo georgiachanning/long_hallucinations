@@ -17,10 +17,20 @@ from eval_utils import (
 
 from data import MAJOR
 
-CLIENT = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+CLIENT = None # OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+huggingface = True
 api = wandb.Api()
-api.entity = os.environ['WANDB_API_ENTITY']
+# api.entity = os.environ['WANDB_API_ENTITY']
 
+def init_client(model_name, use_huggingface=True, device="cuda:0"):
+    global CLIENT, huggingface
+    import LLM
+    huggingface = use_huggingface
+    if use_huggingface:
+        CLIENT = LLM.get_model(model_name, device)
+    else:
+        from openai import OpenAI
+        CLIENT = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
 
 def wandb_restore(wandb_run, filename):
     files_dir = 'tmp_wandb/'
@@ -86,10 +96,19 @@ def oai_predict(prompt):
     return response
 
 
+def hf_predict(prompt):
+    output = CLIENT.complete(prompt, max_new_tokens=512, repetition_penalty=1.15)
+    response = output #.choices[0].message.content
+    return response
+
+
 def predict_w_log(prompt, indent):
     """Predict and log inputs and outputs."""
     log_w_indent(f'Input: {prompt}', indent)
-    response = oai_predict(prompt)
+    if huggingface:
+        response = hf_predict(prompt)
+    else:
+        response = oai_predict(prompt)
     log_w_indent(f'Output: {response}', indent, symbol='xx')
     return response
 
